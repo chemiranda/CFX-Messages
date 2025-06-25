@@ -1,2 +1,2 @@
-# Test
+# Training
 Test Repository
