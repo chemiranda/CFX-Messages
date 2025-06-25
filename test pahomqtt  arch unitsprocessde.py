@@ -1,18 +1,29 @@
 import paho.mqtt.client as mqtt
 import json
-null="null"
+from datetime import datetime
 
-#broker MQTT
-broker = "archfx-am-1.flex.com"
-port = 1883
-topic = "flex-smt.raw.ps--0000-0007.cfx.flex-v1.d--0000-0000-0012-0f6a"
-username = "cfx-guadalajara-n"
-password = "347277874783"
+# Función para leer la configuración desde el archivo JSON
+def load_config(file_path):
+    with open(file_path, 'r') as file:
+        config = json.load(file)
+    return config
+
+# Callback para confirmar la entrega del mensaje
+def on_publish(client, userdata, mid):
+    print("Mensaje publicado con QoS 1 y confirmado por el broker")
+
+# Cargar la configuración
+config = load_config('config_connect.json')
+
+null = None  # Usar None en lugar de null
+
+# Obtener la hora actual del sistema en el formato requerido
+current_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
 
 message = {
     "MessageName": "CFX.Production.Processing.UnitsProcessed",
     "Version": "1.7",
-    "TimeStamp": "2025-06-11T13:21:01-06:00",
+    "TimeStamp": current_time,
     "UniqueID": "d--0000-0000-0012-0f6a",
     "Source": "d--0000-0000-0012-0f6a",
     "Target": null,
@@ -99,15 +110,18 @@ message_json = json.dumps(message)
 client = mqtt.Client()
 
 # Configurar usuario y contraseña
-client.username_pw_set(username, password)
+client.username_pw_set(config['username'], config['password'])
+
+# Asignar el callback de publicación
+client.on_publish = on_publish
 
 # Conectar al broker MQTT
-client.connect(broker, port)
+client.connect(config['broker'], config['port'])
 
 # Publicar un mensaje en el tema especificado con QoS 1
-client.publish(topic, message_json, qos=0)
+client.publish(config['topic'], message_json, qos=1)
 
 # Desconectar del broker
 client.disconnect()
 
-print(f"Mensaje '{message_json}' enviado al tema '{topic}' en el broker '{broker}:{port}' con QoS 0")
+print(f"Mensaje '{message_json}' enviado al tema '{config['topic']}' en el broker '{config['broker']}:{config['port']}' con QoS 1")
