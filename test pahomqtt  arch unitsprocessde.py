@@ -38,7 +38,7 @@ while True:
             "$type": "CFX.Production.Processing.UnitsProcessed, CFX",
             "TransactionID": transaction_id,
             "OverallREsult": "Pass",
-            "RecipeName": "Recipe_01", 
+            #"RecipeName": "Recipe_01", 
             "CommonProcessData": 
                    {
                     "$type": "CFX.Structures.ProccessData, CFX", 
