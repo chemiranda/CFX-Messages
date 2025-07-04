@@ -1,0 +1,7 @@
+{
+    "broker": "archfx-am-1.flex.com",
+    "port": 1883,
+    "topic": "flex-smt.raw.ps--0000-0007.cfx.flex-v1.d--0000-0000-0012-006d",
+    "username": "cfx-guadalajara-n",
+    "password": "347277874783"
+}
