@@ -13,7 +13,9 @@ def on_publish(client, userdata, mid):
     print("Mensaje publicado con QoS 1 y confirmado por el broker")
 
 # Cargar la configuración
-config = load_config('config_connect.json')
+
+config = load_config('config_connect2.json')
+
 
 null = None  # Usar None en lugar de null
 
@@ -25,8 +27,9 @@ message =  {
     "MessageName": "CFX.ResourcePerformance.StationStateChanged",
     "Version": "1.7",
     "TimeStamp": current_time,
-    "UniqueID": "d--0000-0000-0012-0f6a",
-    "Source": "d--0000-0000-0012-0f6a",
+    "UniqueID": "d--0000-0000-0012-006d",
+    "Source": "d--0000-0000-0012-006d",
+
     "Target": null,
     "RequestID": null,
     "MessageBody": {

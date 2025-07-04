@@ -24,8 +24,9 @@ message = {
     "MessageName": "CFX.ResourcePerformance.FaultOccurred",
     "Version": "1.7",
     "TimeStamp": current_time,
-    "UniqueID": "d--0000-0000-0012-0f6a",
-    "Source": "d--0000-0000-0012-0f6a",
+    "UniqueID": "d--0000-0000-0012-006d",
+    "Source": "d--0000-0000-0012-006d",
+
     "Target": null,
     "RequestID": null,
     "MessageBody": {

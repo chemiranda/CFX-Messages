@@ -2,6 +2,9 @@ import paho.mqtt.client as mqtt
 import json
 from datetime import datetime
 
+import time
+
+
 # Función para leer la configuración desde el archivo JSON
 def load_config(file_path):
     with open(file_path, 'r') as file:
@@ -12,45 +15,50 @@ def load_config(file_path):
 def on_publish(client, userdata, mid):
     print("Mensaje publicado con QoS 1 y confirmado por el broker")
 
-# Cargar la configuración
-config = load_config('config_connect.json')
+# Callback para manejar la conexión
+def on_connect(client, userdata, flags, rc):
+    if rc == 0:
+        print("Connection to Broker stablished")
+    elif rc == 4:
+        print("Error: User or Password incorrect")
+    else:
+        print(f"Error Connection: {rc}")
 
-null = None  # Usar None en lugar de null
-
-# Obtener la hora actual del sistema en el formato requerido
-current_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
-
-message = {
-    "MessageName": "CFX.Heartbeat",
-    "Version": "1.7",
-    "TimeStamp": current_time,
-    "UniqueID": "d--0000-0000-0012-0f6a",
-    "Source": "d--0000-0000-0012-0f6a",
-    "Target": null,
-    "RequestID": null,
-    "MessageBody": {
-        "$type": "CFX.Heartbeat, CFX",
-        "CFXHandle": null,
-        "HeartbeatFrequency": "00:05:00",
-        "ActiveFaults": [],
-        "ActiveRecipes": [],
-        "Metadata": {
-            "building": "B16",
-            "device": "01",
-            "area_name": "Ciena",
-            "org": "Flex",
-            "line_name": "SMT_Ciena_line6",
-            "site_name": "Guadalajara_North",
-            "station_name": "Map",
-            "Process_type": "screwing",
-            "machine_name": "Map_screwing_01",
-            "Created_by": "GA"
-        },   
+# Función para crear el mensaje
+def create_message():
+    current_time = datetime.now().strftime("%Y-%m-%dT%H:%M:%S%z")
+    message = {
+        "MessageName": "CFX.Heartbeat",
+        "Version": "1.7",
+        "TimeStamp": current_time,
+        "UniqueID": "d--0000-0000-0012-0f6a",
+        "Source": "d--0000-0000-0012-0f6a",
+        "Target": None,
+        "RequestID": None,
+        "MessageBody": {
+            "$type": "CFX.Heartbeat, CFX",
+            "CFXHandle": None,
+            "HeartbeatFrequency": "00:05:00",
+            "ActiveFaults": [],
+            "ActiveRecipes": [],
+            "Metadata": {
+                "building": "3501_Sync_Backend",
+                "device": "02",
+                "area_name": "3501_Sync_Backend",
+                "org": "Flex",
+                "line_name": "Sync_4",
+                "site_name": "Coopersville",
+                "station_name": "Map",
+                "Process_type": "PicknPlace",
+                "machine_name": "MAP-2",
+                "Created_by": "GA"
+            },   
+        }
     }
-}
+    return json.dumps(message)
 
-# Convertir el mensaje a una cadena JSON
-message_json = json.dumps(message)
+# Cargar la configuración
+config = load_config('config_connect2.json')
 
 # Crear una instancia del cliente MQTT
 client = mqtt.Client()
@@ -58,16 +66,24 @@ client = mqtt.Client()
 # Configurar usuario y contraseña
 client.username_pw_set(config['username'], config['password'])
 
-# Asignar el callback de publicación
+# Asignar los callbacks
 client.on_publish = on_publish
-
+client.on_connect = on_connect
 # Conectar al broker MQTT
 client.connect(config['broker'], config['port'])
 
-# Publicar un mensaje en el tema especificado con QoS 1
-client.publish(config['topic'], message_json, qos=1)
+# Iniciar el loop para procesar los callbacks
+client.loop_start()
 
-# Desconectar del broker
-client.disconnect()
-
-print(f"Mensaje '{message_json}' enviado al tema '{config['topic']}' en el broker '{config['broker']}:{config['port']}' con QoS 1")
+# Publicar el mensaje de forma cíclica cada 5 minutos
+try:
+    while True:
+        message_json = create_message()
+        client.publish(config['topic'], message_json, qos=1)
+        print(f"Mensaje '{message_json}' enviado al tema '{config['topic']}' en el broker '{config['broker']}:{config['port']}' con QoS 1")
+        time.sleep(300)  # Esperar 5 minutos (300 segundos) antes de enviar el siguiente mensaje
+except KeyboardInterrupt:
+    print("Interrupción del usuario. Desconectando...")
+finally:
+    client.loop_stop()
+    client.disconnect()
