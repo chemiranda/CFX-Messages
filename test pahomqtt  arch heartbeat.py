@@ -1,7 +1,9 @@
 import paho.mqtt.client as mqtt
 import json
 from datetime import datetime
+
 import time
+
 
 # Función para leer la configuración desde el archivo JSON
 def load_config(file_path):

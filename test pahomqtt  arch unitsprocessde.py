@@ -3,12 +3,12 @@ import json
 from datetime import datetime
 import time
 import uuid
-
 # Function to read the configuration from the JSON file
 def load_config(file_path):
     with open(file_path, 'r') as file:
         config = json.load(file)
     return config
+
 
 # Callback to confirm message delivery
 def on_publish(client, userdata, mid):
@@ -134,4 +134,3 @@ while True:
 
     # Wait 40 seconds before sending the next message
     time.sleep(40)
-
